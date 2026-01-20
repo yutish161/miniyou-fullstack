@@ -3,14 +3,11 @@ load_dotenv()
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from backend.github import fetch_repo_structure
 from backend.agent import agent
 
-import os
 import re, json
 
 app = FastAPI()
@@ -18,29 +15,16 @@ app = FastAPI()
 # ---------------- CORS ----------------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],   # allow frontend domain later
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# ---------------- Serve Frontend ----------------
-
-FRONTEND_PATH = "../frontend"
-
-# Serve Next.js static files
-if os.path.exists(f"{FRONTEND_PATH}/.next"):
-    app.mount("/_next", StaticFiles(directory=f"{FRONTEND_PATH}/.next"), name="next")
-
-# Serve public assets
-if os.path.exists(f"{FRONTEND_PATH}/public"):
-    app.mount("/public", StaticFiles(directory=f"{FRONTEND_PATH}/public"), name="public")
-
-# Root → frontend
+# ---------------- ROOT ----------------
 @app.get("/")
-def serve_frontend():
-    return FileResponse(f"{FRONTEND_PATH}/index.html")
-
+def root():
+    return {"message": "MiniYou backend is live 🚀"}
 
 # ---------------- API ----------------
 
