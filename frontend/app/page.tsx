@@ -3,7 +3,7 @@ import { useState } from "react"
 
 export default function Home() {
   const [repo, setRepo] = useState("")
-  const [data, setData] = useState(null)
+  const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
@@ -25,7 +25,7 @@ export default function Home() {
       })
 
       const json = await res.json()
-      console.log("API RESPONSE:", json) // DEBUG
+      console.log("API RESPONSE:", json)
 
       setData(json)
 
@@ -36,11 +36,7 @@ export default function Home() {
     setLoading(false)
   }
 
-  // ✅ MAIN FIX
-  // Handles both cases:
-  // { tech_stack: ... }
-  // { output: { tech_stack: ... } }
-  const result = data?.output || data
+  const result = data
 
   return (
     <div className="min-h-screen bg-[#050505] text-white selection:bg-purple-500/30">
@@ -97,7 +93,7 @@ export default function Home() {
               {/* TECH STACK */}
               <Card title="Tech Stack" icon="🛠️">
                 {result.tech_stack?.length > 0 ? (
-                  result.tech_stack.map((t, i) => (
+                  result.tech_stack.map((t: string, i: number) => (
                     <span
                       key={i}
                       className="inline-block mr-2 mb-2 px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs text-gray-300"
@@ -110,30 +106,27 @@ export default function Home() {
 
               {/* KEY FILES */}
               <Card title="Key Files" icon="📁">
-  <ul className="space-y-3 text-sm text-gray-300">
-    {result.key_files?.map((f, i) => {
-      // Fix broken characters
-      const clean = f.replace("â", "–")
+                <ul className="space-y-3 text-sm text-gray-300">
+                  {result.key_files?.map((f: string, i: number) => {
+                    const clean = f.replace("â", "–")
+                    const parts = clean.split("–")
 
-      const parts = clean.split("–")
+                    return (
+                      <li key={i} className="leading-relaxed">
+                        <span className="font-medium text-white">
+                          {i + 1}. {parts[0]}
+                        </span>
 
-      return (
-        <li key={i} className="leading-relaxed">
-          <span className="font-medium text-white">
-            {i + 1}. {parts[0]}
-          </span>
-
-          {parts[1] && (
-            <div className="text-gray-400 ml-4">
-              {parts[1]}
-            </div>
-          )}
-        </li>
-      )
-    })}
-  </ul>
-</Card>
-
+                        {parts[1] && (
+                          <div className="text-gray-400 ml-4">
+                            {parts[1]}
+                          </div>
+                        )}
+                      </li>
+                    )
+                  })}
+                </ul>
+              </Card>
 
               {/* DESCRIPTION */}
               <Card title="Project Overview" icon="📝">
@@ -143,7 +136,7 @@ export default function Home() {
               {/* SUGGESTIONS */}
               <Card title="AI Suggestions" icon="✨">
                 {result.suggestions?.length > 0 ? (
-                  result.suggestions.map((s, i) => (
+                  result.suggestions.map((s: string, i: number) => (
                     <div key={i}>→ {s}</div>
                   ))
                 ) : "No data"}
@@ -158,7 +151,15 @@ export default function Home() {
   )
 }
 
-function Card({ title, children, icon }) {
+function Card({
+  title,
+  children,
+  icon
+}: {
+  title: string
+  children: React.ReactNode
+  icon: string
+}) {
   return (
     <div className="bg-white/[0.02] border border-white/[0.06] rounded-2xl p-6">
       <div className="flex items-center gap-2 mb-4">
