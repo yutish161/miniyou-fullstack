@@ -7,8 +7,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
-from github import fetch_repo_structure
-from agent import agent
+from backend.github import fetch_repo_structure
+from backend.agent import agent
 
 import os
 import re, json
