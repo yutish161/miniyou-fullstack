@@ -12,21 +12,18 @@ import re, json
 
 app = FastAPI()
 
-# ---------------- CORS ----------------
+# CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],   # allow frontend domain later
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# ---------------- ROOT ----------------
 @app.get("/")
 def root():
     return {"message": "MiniYou backend is live 🚀"}
-
-# ---------------- API ----------------
 
 class RepoRequest(BaseModel):
     repo_url: str
@@ -40,27 +37,13 @@ async def analyze(payload: RepoRequest):
     })
 
     raw = str(result)
-    print("\nRAW LLM OUTPUT:\n", raw)
 
     match = re.search(r"output='(.*)'", raw, re.DOTALL)
 
     if not match:
-        return {
-            "error": "Could not extract output",
-            "raw": raw
-        }
+        return {"error": "Could not extract output"}
 
     json_str = match.group(1)
-
-    # Convert escaped JSON
     json_str = json_str.encode().decode("unicode_escape")
 
-    try:
-        parsed = json.loads(json_str)
-        return parsed
-    except Exception as e:
-        return {
-            "error": "JSON parse failed",
-            "raw": json_str,
-            "exception": str(e)
-        }
+    return json.loads(json_str)
